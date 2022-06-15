@@ -42,6 +42,7 @@ int main(int argc, char*argv[])
 	bool capflag = mCap.setDeviceName(arr);
 	char tmp;
 	double ticks = 0;
+	bool stopflag = false;
 	//if(!cap.isOpened())
 	if(!capflag)
 	{
@@ -63,108 +64,35 @@ int main(int argc, char*argv[])
 		if( frameflag){
 		namedWindow("Live", WINDOW_KEEPRATIO);
 		imshow("Live", frame);
-		tmp = waitKey(1) & 0xff;
+		if(stopflag)
+			tmp = waitKey(0) & 0xff;
+		else
+			tmp = waitKey(5) & 0xff;
+
 		if( tmp == 0 || tmp == 27 || tmp == 'q' )
 			break;
 		}
-
-		printf("frame no = %d/ %d\n", framecount, total_frame);
-		if( framecount >= total_frame)
-			break;//framecount==0;
-		else 
-			framecount+=1;
-	
-	}
-	destroyAllWindows();
-	return 0;
-
-}
-
-#if 0
-//int main(int argc, char*argv[])
-int mmabc()
-{
-	CommandLineParser parser(argc, argv,
-							"{help h||}"
-							"{video|. |path/video.mp4.}"
-							);
-	parser.printMessage();
-	//
-	////char *vin = &videoin[0]; string to char*
-	//String videoin = parser.get<String>("video");
-	//String vin = parser.get<String>("video");
-
-
-	//load car model
-	if( !car_class.load("Daytime_Car_Cascade_r0.xml"))
-	{
-		std::cout << "[error] load file .... "  << std::endl;	
-	}
-
-	//>>>>kalman filter
-	KF_TRACKING kftracking;
-	kftracking.SetClear();
-	//<<<Kalman filter
-	
-	Mat frame, oframe;
-	cv::Mat gray;	
-	std::vector<Rect> carinfo;
-
-	VideoCapture cap;
-	//cap.open(&videoin[0]);
-	cap.open(argv[1]);
-	char tmp;
-	double ticks = 0;
-	if(!cap.isOpened())
-	{
-		cerr << "ERROR! Unable to open camera\n";
-		return -1;
-	}
-	int total_frame = int(cap.get(CAP_PROP_FRAME_COUNT));
-	printf("total_frame = %d \n", total_frame);
-	namedWindow("Live", WINDOW_KEEPRATIO);
-	int framecount = 0;
-	Mat resizeframe;
-	int notFoundCount = 0;
-	cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
-	cv::Mat imgs, imgt, imgclahe;
-	while( framecount <= total_frame)
-	{
-		//>>>time
-		ticks = (double) cv::getTickCount();
-		std::cout << "ticks = " << ticks << std::endl;
-		std::cout << "[long]ticks = " << cv::getTickCount() << std::endl;
-
-		//<<<time
-		cap.set(CAP_PROP_POS_FRAMES, framecount);
-		cap.read(frame);
-		if( frame.empty())
+		if( tmp =='s' || tmp == 'S')
 		{
-			cerr << "ERROR blank frame grabbed \n";
-			break;
+			stopflag = true;
 		}
-	 	
-		resize(frame, resizeframe, Size(640,480));
-		resize(resizeframe, gray, Size(640, 480));
-		cv::cvtColor(gray, gray, cv::COLOR_BGR2GRAY);
-
-		resizeWindow("Live", 640, 480);
-		imshow("Live", resizeframe);
-		tmp = waitKey(2) & 0xff;
-		if( tmp == 0 || tmp == 27 || tmp == 'q' )
-			break;
+		if( tmp =='r' || tmp == 'R')
+		{
+			stopflag = false;
+		}
 
 		printf("frame no = %d/ %d\n", framecount, total_frame);
 		if( framecount >= total_frame)
 			break;//framecount==0;
 		else 
 			framecount+=1;
+	
 	}
 	destroyAllWindows();
-
 	return 0;
+
 }
-#endif 
+
 
 #if 0
 
